@@ -59,20 +59,17 @@ class DrawImage():
 
 if __name__ == '__main__':
     indicatorKey = int(sys.argv[1])
-    beginDate    = int(sys.argv[2])
-    endDate      = int(sys.argv[3])
-    testCount    = int(sys.argv[4])
+    testCount    = int(sys.argv[2])
 
     basePath = "mart_waimai_crm/"
     indiactorTableName = "indicator_org_id_day_xxsfjye_958_table_prod"
-    epochs  = 10
+    epochs  = 100
     seq_len = 15
 
     global_start_time = time.time()
     print('> Loading data... ')
     indicatorTable = IndicatorTable(basePath+indiactorTableName)
     indicator = indicatorTable.getIndicatorByKey(indicatorKey)
-    indicator = indicator.fliterByData(beginDate, endDate)
     lstm = lstm.lstm()
     windows = lstm.transformDataToWindows(indicator.df[indicator.valueName].tolist(), seq_len)
     normaliseWindows, normaliseBase = lstm.normaliseWindows(windows)
@@ -89,7 +86,7 @@ if __name__ == '__main__':
     predicted = lstm.predictPointByPoint(model, xTest)        
 
     print('Training duration (s) : ', time.time() - global_start_time)
-    yTest = lstm.deNormaliseWindows(yTest, normaliseBase[len(yTrain):])
-    predicted = lstm.deNormaliseWindows(predicted, normaliseBase[len(yTrain):])
+    #yTest = lstm.deNormaliseWindows(yTest, normaliseBase[len(yTrain):])
+    #predicted = lstm.deNormaliseWindows(predicted, normaliseBase[len(yTrain):])
 
     DrawImage(indiactorTableName+"_"+str(indicatorKey), "img/").plotTwo(yTest, "True Date", predicted, "Predicted")
