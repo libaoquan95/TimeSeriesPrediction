@@ -1,6 +1,8 @@
-*/__pycache__/
+/Data/
 /temp/
-/LSTM/data
-/LSTM/run.py
-/img/
-/LINER/
+/Model/LINER/
+/Model/LSTM/data/
+/Model/LSTM/__pycache__/
+/Model/LSTM/.*
+/Unit/__pycache__/
+.*
