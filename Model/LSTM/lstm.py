@@ -23,6 +23,16 @@ class lstm():
             windows.append(data[index: index + sequence_length])
         return windows
 
+    def normalisMinAndMax(self, data):
+        max_ = min_ = data[0]
+        for d in data:
+            max_ = max(max_, d)
+            min_ = min(min_, d)
+        normalisedData = []
+        for d in data:
+            normalisedData.append(float(d-min_+1)/(max_-min_+1))
+        return normalisedData
+    '''
     def normaliseWindows(self, windows):
         normalisedData = []
         normalisedBase = []
@@ -51,11 +61,13 @@ class lstm():
             base = bases[i]
             deNormalisedData.append(float(base) * (float(window) + 1))
         return deNormalisedData
+    '''
 
     def SplitData(self, windows, test_count):
         windowData = np.array(windows)
         row = windowData.shape[0] - test_count
         train = windowData[:int(row), :]
+        np.random.shuffle(train)
         xTrain = train[:, :-1]
         yTrain = train[:, -1]
         xTest = windowData[int(row):, :-1]
@@ -95,16 +107,26 @@ class lstm():
         return model
 
     def predictPointByPoint(self, model, data):
-        #Predict each timestep given the last sequence of true data, in effect only predicting 1 step ahead each time
         predicted = model.predict(data)
         predicted = np.reshape(predicted, (predicted.size,))
         return predicted
 
-    def score(self, real, pred, sensitivity=0.1):
+    def score(self, real, pred, bound, sensitivity=0.1):
         hitCount = 0
-        if(len(real) != len(pred)):
+        isHit = []
+        if len(real) != len(pred) or len(real) != len(bound):
             print ("长度不匹配")
         for i in range(len(real)):
-            if (abs(real[i] - pred[i]) <= sensitivity):
-                hitCount = hitCount + 1
-        return float(hitCount)/len(real)
+            if (abs(bound[i][0] - bound[i][1] == 0)):
+                if bound[i][0] == real[i]:
+                    hitCount = hitCount + 1
+                    isHit.append(1)
+                else: 
+                    isHit.append(0)
+            else:
+                if (abs(real[i] - pred[i]) <= sensitivity * abs(bound[i][0] - bound[i][1])):
+                    hitCount = hitCount + 1
+                    isHit.append(1)
+                else:
+                    isHit.append(0)
+        return [float(hitCount)/len(real), isHit]
