@@ -5,4 +5,5 @@
 /Model/LSTM/__pycache__/
 /Model/LSTM/.*
 /Unit/__pycache__/
+/__pycache__/
 .*
